@@ -1,14 +1,47 @@
 import express from 'express'
 import { createSocket } from './src/wa-listener.js'
 import { logger } from './src/lib/logger.js'
+import path from 'path'
+import { Server } from 'socket.io'
+import { fileURLToPath } from 'url'
 import { generateWaActionsControllers } from './src/wa-handler/actions/actions.controllers.js'
+import { createServer } from 'http'
+import basicAuth from 'express-basic-auth'
+import { config } from '@/config.js'
 
-const port = Number(process.env.PORT ?? 3000)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const port = Number(config.port) || 3000
+
+
 
 const app = express()
+const server = createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+})
 
+io.on('connection', (socket) => {
+  logger.info({ socketId: socket.id }, 'New WebSocket connection')
+  socket.on('disconnect', () => {
+    logger.info({ socketId: socket.id }, 'WebSocket disconnected')
+  })
+})
+
+express.static(path.join(__dirname, './src/assets'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(express.static('public'))
+
+app.get('/qr', basicAuth({
+  users: { [config.qrBasicAuthUsername]: config.qrBasicAuthPassword },
+  challenge: true,
+}), (_, res) => {
+  res.sendFile(path.join(__dirname, '/src/assets', 'qr.html'))
+})
 
 app.get('/', (_, res) => {
   res.json({
@@ -22,7 +55,13 @@ app.get('/health', (_, res) => {
   res.json({ status: 'healthy' })
 })
 
-createSocket().then((sock) => {
+createSocket({
+  onQr: (qr) => {
+    logger.info('Emitting QR code to clients')
+    io.emit('wa:qr', { qr })
+  }
+}
+).then((sock) => {
   const router = generateWaActionsControllers(sock);
   app.use('/wa-actions', router);
   logger.info('WhatsApp socket created')
@@ -31,7 +70,10 @@ createSocket().then((sock) => {
 })
 
 
-app.listen(port, () => {
+
+
+server.listen(port, () => {
   logger.info({ port }, 'Server is running')
 })
+
 

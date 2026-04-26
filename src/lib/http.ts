@@ -1,10 +1,11 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { config } from "@/config.js";
 
 dotenv.config();
 
-const n8nMessageWebhookUrl = process.env.BAILEY_N8N_MESSAGE_WEBHOOK || "http://localhost:5678/webhook/baileys";
-const n8nChatWebhookUrl = process.env.BAILEY_N8N_CHAT_WEBHOOK || "http://localhost:5678/webhook/baileys";
+const n8nMessageWebhookUrl = config.messageWebhook || "http://localhost:5678/webhook/baileys";
+const n8nChatWebhookUrl = config.chatWebhook || "http://localhost:5678/webhook/baileys";
 
 interface N8nMessageEvent {
   eventName: string;

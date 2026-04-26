@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp QR Listener</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .card {
+      width: min(92vw, 480px);
+      padding: 24px;
+      border-radius: 16px;
+      background: #111827;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      opacity: 0.85;
+      font-size: 0.9rem;
+    }
+
+    #qrBox {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+      border-radius: 12px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    #qrCanvas,
+    #qrImage {
+      max-width: 100%;
+      max-height: 100%;
+      display: none;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+
+    code {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      opacity: 0.9;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>WhatsApp QR</h1>
+    <p class="subtitle">Listening for QR updates from WebSocket</p>
+
+    <div id="qrBox">
+      <canvas id="qrCanvas" width="280" height="280"></canvas>
+      <img id="qrImage" alt="QR code" />
+    </div>
+
+    <div class="status" id="status">Connecting...</div>
+    <code id="wsUrl"></code>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const statusEl = document.getElementById('status')
+    const wsUrlEl = document.getElementById('wsUrl')
+    const qrCanvas = document.getElementById('qrCanvas')
+    const qrImage = document.getElementById('qrImage')
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const wsUrl = urlParams.get('ws') || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`
+    wsUrlEl.textContent = wsUrl
+
+    function setStatus(text) {
+      statusEl.textContent = text
+    }
+
+    function extractPayload(raw) {
+      if (!raw) return null
+      if (typeof raw !== 'string') return raw
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return raw
+      }
+    }
+
+    function getQrData(payload) {
+      if (!payload) return null
+      if (typeof payload === 'string') return payload
+      return payload.qr || payload.qrCode || payload.data || payload.payload || null
+    }
+
+    async function renderQr(qrData) {
+      if (!qrData) return
+
+      if (typeof qrData === 'string' && qrData.startsWith('data:image')) {
+        qrCanvas.style.display = 'none'
+        qrImage.style.display = 'block'
+        qrImage.src = qrData
+        return
+      }
+
+      qrImage.style.display = 'none'
+      qrCanvas.style.display = 'block'
+
+      await QRCode.toCanvas(qrCanvas, String(qrData), {
+        width: 280,
+        margin: 1
+      })
+    }
+
+    function connect() {
+      setStatus('Connecting...')
+      const socket = io(wsUrl)
+
+      socket.on('wa:qr', async (qrData) => {
+        await renderQr(qrData)
+        setStatus('QR updated, please scan it with your WhatsApp app')
+      })
+
+
+      // socket.onopen = () => {
+      //   setStatus('Connected. Waiting for QR data...')
+      // }
+
+
+
+      // socket.onerror = () => {
+      //   setStatus('WebSocket error')
+      // }
+
+      // socket.onclose = () => {
+      //   setStatus('Disconnected. Reconnecting in 2s...')
+      //   setTimeout(connect, 2000)
+      // }
+    }
+
+    connect()
+  </script>
+</body>
+
+</html>

@@ -4,7 +4,11 @@ import { handleChatEvent } from './wa-handler/listener/chat.js'
 import { handleIncomingMessage } from './wa-handler/listener/incoming-message.js'
 
 
-export async function createSocket() {
+interface CreateSocketOptions {
+  onQr?: (qr: string) => void
+}
+
+export async function createSocket(options?: CreateSocketOptions) {
   const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
   const sock = makeWASocket({
     auth: state,
@@ -13,7 +17,7 @@ export async function createSocket() {
     syncFullHistory: false,
   })
 
-  connectWa(sock, createSocket)
+  connectWa(sock, () => createSocket(options), options?.onQr)
   // handleChatEvent(sock)
   handleIncomingMessage(sock)
 

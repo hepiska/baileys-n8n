@@ -8,6 +8,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
 
     "strict": true,
     "skipLibCheck": true,
