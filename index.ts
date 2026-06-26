@@ -8,15 +8,32 @@ import { generateWaActionsControllers } from './src/wa-handler/actions/actions.c
 import { createServer } from 'http'
 import basicAuth from 'express-basic-auth'
 import { config } from '@/config.js'
+import { pinoHttp } from 'pino-http'
+import { waUpsertWorker } from '@/lib/workers/wa-upsert.worker.js'
+import { waUpsertQueue } from '@/lib/queues/wa-upsert.queue.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+
+
 
 const port = Number(config.port) || 3000
 
 
 
 const app = express()
+app.use(pinoHttp({
+  logger: logger,
+  customLogLevel: (req, res, err) => {
+    if (res.statusCode >= 500 || err) {
+      return 'error'
+    } else if (res.statusCode >= 400) {
+      return 'warn'
+    }
+    return 'info'
+  },
+}))
 const server = createServer(app)
 const io = new Server(server, {
   cors: {
@@ -36,12 +53,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-app.get('/qr', basicAuth({
-  users: { [config.qrBasicAuthUsername]: config.qrBasicAuthPassword },
-  challenge: true,
-}), (_, res) => {
-  res.sendFile(path.join(__dirname, '/src/assets', 'qr.html'))
-})
 
 app.get('/', (_, res) => {
   res.json({
@@ -69,11 +80,44 @@ createSocket({
   logger.error({ err }, 'Failed to create WhatsApp socket')
 })
 
-
+app.get('/qr', basicAuth({
+  users: { [config.qrBasicAuthUsername]: config.qrBasicAuthPassword },
+  challenge: true,
+}), (_, res) => {
+  res.sendFile(path.join(__dirname, '/src/assets', 'qr.html'))
+})
 
 
 server.listen(port, () => {
   logger.info({ port }, 'Server is running')
+})
+
+const shutdown = async (signal: string) => {
+  logger.info({ signal }, 'Shutting down gracefully')
+
+  await Promise.allSettled([
+    waUpsertWorker.close(),
+    waUpsertQueue.close(),
+  ])
+
+  server.close(() => {
+    logger.info('HTTP server closed')
+    process.exit(0)
+  })
+}
+
+process.on('SIGINT', () => {
+  shutdown('SIGINT').catch((error) => {
+    logger.error({ error }, 'Failed graceful shutdown on SIGINT')
+    process.exit(1)
+  })
+})
+
+process.on('SIGTERM', () => {
+  shutdown('SIGTERM').catch((error) => {
+    logger.error({ error }, 'Failed graceful shutdown on SIGTERM')
+    process.exit(1)
+  })
 })
 
 

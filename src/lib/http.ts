@@ -23,18 +23,16 @@ interface N8nMessageEvent {
 
 export const n8nMessageWebhook = async (body: any) => {
   try {
-    console.log("Sending message event to n8n webhook:", body, n8nMessageWebhookUrl);
     await axios.post(n8nMessageWebhookUrl, body);
   } catch (error) {
-    console.error("Failed to send message to n8n webhook:", error);
+    console.error("Failed to send message to n8n webhook:", (error as Error).message);
   }
 };
 
 export const n8nChatWebhook = async (body: any) => {
   try {
-    console.log("Sending chat event to n8n webhook:", body);
     await axios.post(`${n8nChatWebhookUrl}`, body);
   } catch (error) {
-    console.error("Failed to send chat event to n8n webhook:", error);
+    console.error("Failed to send chat event to n8n webhook:", (error as Error).message);
   }
 }

@@ -5,10 +5,10 @@ import {
   messagesMediaUpdateCallbacks,
   messagesReactionCallbacks,
   messagesUpdateCallbacks,
-  messagesUpsertCallbacks,
   messagingHistorySetCallbacks,
 } from "../message-callback.repository.js"
 import { logger } from "../../lib/logger.js"
+import { enqueueUpsertMessages } from "@/lib/queues/wa-upsert.queue.js"
 
 const logMessageEventError = (event: string, error: unknown) => {
   logger.error({ event, error }, 'Error handling WhatsApp message event')
@@ -17,8 +17,9 @@ const logMessageEventError = (event: string, error: unknown) => {
 
 export const handleIncomingMessage = async (sock: ReturnType<typeof makeWASocket>) => {
   sock.ev.on('messages.upsert', async ({ type, messages }) => {
+    console.log('Messages:', messages[0].message)
     try {
-      await messagesUpsertCallbacks(type, messages)
+      await enqueueUpsertMessages(type, messages)
     } catch (error) {
       logMessageEventError('messages.upsert', error)
     }

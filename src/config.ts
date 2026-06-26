@@ -8,4 +8,10 @@ export const config = {
   qrBasicAuthUsername: process.env.QR_BASICH_AUTH_USERNAME || 'admin',
   qrBasicAuthPassword: process.env.QR_BASICH_AUTH_PASSWORD || 'admin',
   port: process.env.PORT || 3000,
+  logLevel: process.env.LOG_LEVEL || 'info',
+  redisHost: process.env.REDIS_HOST || '127.0.0.1',
+  redisPort: Number(process.env.REDIS_PORT || 6379),
+  redisPassword: process.env.REDIS_PASSWORD,
+  waUpsertQueueName: process.env.WA_UPSERT_QUEUE_NAME || 'wa-messages-upsert',
+  imKitPrivateKey: process.env.IMKIT_PRIVATE_KEY || '',
 }

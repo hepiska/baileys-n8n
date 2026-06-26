@@ -1,0 +1,982 @@
+{
+  "name": "call track new",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "1f01e05f-e91b-4c8b-9201-6eb9ed5b2051",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "d8aa4280-9748-4916-9fdf-3f78344590f4",
+      "name": "Webhook",
+      "webhookId": "1f01e05f-e91b-4c8b-9201-6eb9ed5b2051"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.eventName }}",
+                    "rightValue": "messages.upsert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e0b3a8f7-5fdf-4969-8395-abbc6ff0c1f8"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "new message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8fb43880-1f4d-4f2c-8589-1df9cba0eb11",
+                    "leftValue": "={{ $('Webhook').item.json.body.eventName }}",
+                    "rightValue": "messages.update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message edited"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6ba922c8-659a-4a66-9365-624b69322312",
+                    "leftValue": "={{ $('Webhook').item.json.body.eventName }}",
+                    "rightValue": "messages.delete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "massage deleted"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cf0b99a7-d862-4d7f-9f8f-c8591ea304d2",
+                    "leftValue": "={{ $('Webhook').item.json.body.eventName }}",
+                    "rightValue": "messages.media-update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "media updated"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "dc872414-51c8-48f5-ac73-bec7f0e0a90c",
+                    "leftValue": "={{ $('Webhook').item.json.body.eventName }}",
+                    "rightValue": "messages.reaction",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reaction"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "99c37647-9939-4b90-b94f-e2a0f4a1fa85",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/wa-actions/read-message",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $json.body.message.key.remoteJid }}"
+            },
+            {
+              "name": "id",
+              "value": "={{ $json.body.message.key.id }}"
+            },
+            {
+              "name": "fromMe",
+              "value": "={{ $json.body.message.key.fromMe }}"
+            },
+            {
+              "name": "participant",
+              "value": "={{ $json.body.message.key.participant }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        176,
+        -416
+      ],
+      "id": "757aac7c-77ed-4a7a-8722-49fa9761ee2b",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.message.message.conversation }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "a916043b-0141-4e1f-a3a3-be5c8a9fc608"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2203f0c3-9d29-4e2e-9272-cec4dabcb9ab",
+                    "leftValue": "={{ $('Webhook').item.json.body.message.imageMessage }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        -32
+      ],
+      "id": "b95f8396-f35d-44ae-aef6-6251edf2adef",
+      "name": "text image switcher"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are the entry-level routing and vision engine for a WhatsApp fitness and nutrition SaaS. Your sole job is to read the incoming user input—which can be a text message, an explicit Image URL, or a combination of both—and classify the user's intent into exactly one of six categories.\n\n### Processing Instructions for Image URLs:\n- If the user input contains a URL pointing to an image asset, you must actively analyze the visual content inside that URL.\n- Evaluate the pixels, objects, text (OCR), and context contained within the image URL to determine what the user is interacting with.\n\n### Classification Rules:\n1. Choose \"food\" if the user is explicitly logging meals, drinks, snacks, cheat meals, ingredients, or asking about nutritional content. This includes text descriptions or an image URL showing a plate of food, beverages, groceries, or restaurant menus.\n2. Choose \"exercise\" if the user is explicitly logging physical activity. This includes text logs of workouts or an image URL showing a gym whiteboard workout routine, a handwritten workout layout, gym equipment, or a fitness tracker dashboard screenshot.\n3. Choose \"confirm_log\" if the user is explicitly approving a calculated preview to save it (e.g., replying with text like \"yes\", \"save\", \"log\", \"it okay\", \"simpan\", \"ok\").\n4. Choose \"profile_update\" if the user is stating a change to personal metrics like weight, height, age, target goals, or daily calorie limits (e.g., \"I weigh 70kg now\", \"bb gw naik jadi 65kg\", \"ubah target kalori jadi 2000\").\n5. Choose \"status_check\" if the user is asking for their progress, historical data, or current balance for the day (e.g., \"how many calories do I have left?\", \"sisa kalori gw berapa?\", \"rekap hari ini dong\").\n6. Choose \"other\" if the message or image URL content is general chit-chat (\"hello\", \"thank you\", \"ok\"), generic non-fitness questions, or an unidentifiable/unrelated asset.\n\n### Output Requirement:\n- You must output a raw, strict JSON object matching the schema below.\n- Do not wrap the output in markdown fences like ```json.\n- Do not include any conversational pleasantries or extra commentary outside the JSON boundaries.\n\n### Output JSON Schema:\n{\n  \"intent\": \"food\", // Must be exactly one of: \"food\", \"exercise\", \"confirm_log\", \"profile_update\", \"status_check\", \"other\"\n  \"input_type\": \"url\", // \"text\", \"url\", or \"hybrid\"\n  \"confidence_score\": 0.95, // Float between 0.0 and 1.0 representing accuracy of classification\n  \"language_used\": \"id\" // The language code detected (\"id\" for Indonesian, \"en\" for English, \"mixed\", or \"none\" for pure visual URL evaluation)\n}",
+              "role": "model"
+            },
+            {
+              "content": "={{ $('Webhook').item.json.body.message.message.conversation || \"\" }} "
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        -320
+      ],
+      "id": "bb870caa-11ed-4874-8d73-56c6d6ba0cb3",
+      "name": "intent classifier",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "19pPlnDOhZi8z7if",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n\nreturn JSON.parse($input.first().json.content.parts[0].text)"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        -320
+      ],
+      "id": "21d66cba-04d7-4bc0-99ee-66c233fc1e83",
+      "name": "intent froms string to json"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "food",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eb18fdcb-a38e-4e85-ad08-d31326443a08"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "66329508-e423-470c-a8df-8053c41d4671",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "exercise",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e1ff8302-0b04-4e48-984f-c07aa4f9b36a",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "profile_update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "44d6a200-6ed9-4bf2-9665-f2d664f53bd2",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "status_check",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "26cde970-fb09-432d-bdad-bd2ad2ea0dc4",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "other",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1a744534-b67b-4f5e-a176-4c0d761efbed",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "=confirm_log",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        -384
+      ],
+      "id": "7a6ecf9b-b8f4-4aeb-9740-4567f3136b94",
+      "name": "intent switcher"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message.message.conversation || \"\" }} {{ $json.comprehensive_vision_summary || \"\"}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "ROLE: You are an isolated, strict data-extraction nutrition engine. You ignore all previous conversational output styles. You do not engage in chat or commentary. You analyze the text, voice transcript, visual summary, or image payload provided, and output exactly one specific JSON object.\n\nCRITICAL CONSTRAINT: Do NOT wrap your output in markdown code blocks like ```json ... \n```. Do not include newlines like \\n before the opening brace. Your response MUST start exactly with the opening curly brace character { and end exactly with the closing curly brace character }.\n\n### Input Modes & Logic:\n1. Pure Text/Voice: Parse messages written in English, Indonesian, or common mixed conversational slang (e.g., \"tadi siang makan ayam geprek 1 nasi setengah, es teh manis\").\n2. Pure Image / Image URL: Visually analyze the food plate image. Estimate the weight or volume based on typical Indonesian or Western plating sizes and calculate nutrition solely from visual data. \n3. Hybrid (Image/URL + Text): Combine what you see visually with the text caption. For example, if the image shows a bowl of soup and the text says \"tambah krupuk putih 2\", calculate the nutritional totals for both the visible soup in the image and the text-declared crackers.\n4. Conversational Corrections (Memory): You have access to the immediate chat history. If the user replies to your previous calculation with a correction like \"actually make that two eggs\" or \"tadi nasinya diganti nasi merah\", look at the previous meal context, adjust the values, and return a completely updated calculation.\n\n### Language & Tone Matching Rules:\n- You must dynamically detect the user's input language and tone (English, formal Indonesian, or casual mixed slang like \"gw\", \"mkn\", \"pake\").\n- The generated `whatsapp_text` MUST match the user's language and tone perfectly. If they log in casual Indonesian, your preview must be in casual Indonesian. If the input is a pure image with no text, default to the local region language (casual Indonesian).\n- The final line of the `whatsapp_text` must explicitly instruct the user to reply with the exact confirmation words (\"yes\", \"save\", or \"log it\").\n  - For English contexts, use: \"_Reply *'Yes'*, *'Save'*, or *'Log it'* to save._\"\n  - For Indonesian/Mixed contexts, use: \"_Balas *'Yes'*, *'Save'*, atau *'Log it'* untuk menyimpan._\"\n\n### Nutritional & Portion Guidelines:\n- If quantities are missing or unidentifiable in the image, assume standard default serving sizes (e.g., 1 plate of Nasi Goreng = 350g, 1 piece of Tempe Goreng = 40g).\n- Seamlessly handle regional Indonesian staples (e.g., Nasi Uduk, Ayam Geprek, Sate Ayam, Bakso, Tempe/Tahu Goreng, Sambal Lalapan) as well as global Western dishes.\n- Account for \"hidden variables\" in visual plate analysis, such as cooking oil used in deep-fried foods or high-calorie elements like sweet soy sauce (kecap manis) and sambal.\n\n### Output JSON Schema:\n{\n  \"is_food\": true,\n  \"calories\": 620, // Integer. Total calculated calories exposed directly at the root level for easy n8n data manipulation.\n  \"food_summary\": \"1 plate of Nasi Geprek with half portion of white rice and sweet iced tea\", \n  \"nutrients\": {\n    \"calories\": 620, \n    \"protein_g\": 28, \n    \"carbs_g\": 75, \n    \"fat_g\": 22 \n  },\n  \"whatsapp_text\": \"... [Your language-matched text preview as described in rules] ...\" \n}",
+          "passthroughBinaryImages": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1680,
+        -704
+      ],
+      "id": "7981efa7-9749-4099-84b9-147f2bde0835",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1648,
+        -512
+      ],
+      "id": "5c13db9f-1e77-416d-8359-2cf325993b54",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "19pPlnDOhZi8z7if",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message.message.conversation }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the data-extraction and selection engine for a WhatsApp calorie-tracking SaaS. Your job is to analyze the user's confirmation message (where they pick a meal they previously discussed), read the past chat history to find that meal's nutritional information, and output the finalized metrics.\n\n### Selection Logic:\n1. Identify the Choice: Look at the user's latest message (e.g., \"I'll take option 1\", \"makan yang nasi goreng aja\", \"pilih yang pertama\").\n2. Scan Chat History: Search the recent conversation context to find the corresponding food estimation you gave them earlier.\n3. Extract and Map: Isolate the calories, protein, carbs, and fat values that were generated for that specific chosen item.\n\n### Language & Tone Rule:\n- Read the user's latest text. Generate the `whatsapp_success_text` matching their language and tone (\"id\" = standard Indonesian, \"en\" = English, \"mixed\" = casual conversational Indonesian slang like \"gw\", \"lu\", \"ok mantap\").\n\n### Output Requirement:\n- Output a raw, strict JSON object matching the schema below.\n- Do not wrap the JSON output in markdown code fences like ```json.\n- Do not include any conversational text or commentary outside of the JSON.\n\n### Output JSON Schema:\n{\n  \"is_food\": true,\n  \"is_workout\": false,\n  \"food_summary\": \"Nasi Goreng Ayam (Option 1 Selected)\", // The name of the meal they chose\n  \"workout_name\": null,\n  \"nutrients\": {\n    \"calories\": 540, // The exact integer found in the chat history for this item\n    \"protein_g\": 22, \n    \"carbs_g\": 55, \n    \"fat_g\": 25 \n  },\n  \"whatsapp_text\": \"✅ *Berhasil disimpan!*\\n\\nPilihanmu *Nasi Goreng Ayam* (~540 kcal) udah resmi masuk jurnal harian. Selamat makan! 🍽️\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        48
+      ],
+      "id": "b9d7aec8-b459-490a-86f2-89ea0a98687c",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1696,
+        224
+      ],
+      "id": "72a09232-dbbf-4ab7-9c8b-42bb0cdd3a32",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "19pPlnDOhZi8z7if",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.message.key.remoteJid }}",
+        "databaseName": "fit_log",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        256
+      ],
+      "id": "ca5958e8-5830-4474-b295-4064dc5709e0",
+      "name": "MongoDB Chat Memory1",
+      "notesInFlow": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "6ja3rW5CeKDpu6qF",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n\nreturn JSON.parse($input.first().json.output)"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2144,
+        -208
+      ],
+      "id": "7adf2924-36f8-4c7f-83c1-823c238b8700",
+      "name": "intent froms string to json1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/wa-actions/send-message",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $('Webhook').item.json.body.message.key.remoteJid }}"
+            },
+            {
+              "name": "message.text",
+              "value": "={{ $json.whatsapp_text ||  $json.whatsapp_preview_text || $json.whatsapp_success_text}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2384,
+        -208
+      ],
+      "id": "cf9c225f-e482-417a-bbf3-b96ccd7f5c0e",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "ROLE: You are a strict data-routing visual OCR engine. You ignore all previous output styles from the conversation history. You do not engage in chat. You look at the image provided and output one specific JSON format.\n\nCRITICAL: Do NOT wrap your output in markdown code blocks like ```json ... ```. Do not include newlines like \\n before the JSON wrapper. Your response MUST start exactly with the character { and end exactly with the character }.\n\n### Task 1: Intent Classification Rules\nClassify the intent into exactly one of three categories:\n1. \"food\": Images of meals, plates, drinks, groceries, snacks, or menus.\n2. \"exercise\": Images of gym whiteboards, handwritten workout logs, or screenshots from fitness apps (Strava, Garmin, Apple Health, Nike Run Club) and smartwatches.\n3. \"other\": Photos of pets, cars, landscapes, selfies, or blurry/unusable images.\n\n### Task 2: Unified Vision Summary Generation\nYou must populate the `comprehensive_vision_summary` field with a raw, descriptive text string summarizing everything you see so text-only models downstream can process it without seeing the image.\n- If FOOD: Detail every visible item, estimated portions, cooking methods, side dishes, and drinks.\n- If EXERCISE (Whiteboard/Notebook): Transcribe every single word, exercise name, set, rep, and weight perfectly via OCR.\n- If EXERCISE (Fitness App/Strava): Extract all key metrics—Distance, Pace, Duration, Active Time, Heart Rate, and Calorie Burn.\n\n### Output JSON Schema:\n{\n  \"intent\": \"food\", \n  \"confidence_score\": 0.98,\n  \"is_blurry_or_unreadable\": false,\n  \"comprehensive_vision_summary\": \"The image shows a salad bowl containing mixed greens, two halves of a hard-boiled egg, sliced tomatoes, and raw onion rings.\",\n  \"extracted_data\": {\n    \"raw_ocr_text\": null,\n    \"detected_visual_items\": [\"mixed greens\", \"hard-boiled egg\", \"tomatoes\", \"onion rings\"],\n    \"parsed_structural_metrics\": null\n  }\n}",
+        "imageUrls": "={{ $('Webhook').item.json.body.message.imageMessage.imageFile.fileUri }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        864,
+        -48
+      ],
+      "id": "05738154-503f-414a-ac7d-9b964b3ded74",
+      "name": "intent classifier image1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "19pPlnDOhZi8z7if",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.message.message.conversation || \"\" }} {{ $json.comprehensive_vision_summary || \"\"}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert fitness coach, biometric analyzer, and structured data data-extraction engine for a WhatsApp fitness SaaS. Your job is to parse incoming exercise metadata (which can be a user's text description, a voice note transcript, or a visual summary string from a preceding vision node) and format it into a comprehensive, highly detailed JSON payload.\n\n### Workout Type Processing Rules:\n\n1. STRENGTH TRAINING (Resistance/Weightlifting):\n   - You must parse every distinct exercise movement.\n   - For each movement, extract the sets, reps, and weights used (if mentioned). If sets/reps are written as a shorthand (e.g., \"3x10 at 60kg\"), map it as 3 individual set items or an aggregated structured array.\n   - You MUST generate a unique code identifier for every exercise movement formatted strictly in camelCase (e.g., \"Bench Press\" -> \"benchPress\", \"Sumo Deadlift\" -> \"sumoDeadlift\", \"Lat Pulldown\" -> \"latPulldown\", \"Squat\" -> \"squat\").\n\n2. RUNNING / CARDIO:\n   - Extract all explicit performance metrics if available: distance, duration/time, average pace, or heart rate.\n   - If metrics are missing (e.g., \"I went for a run\"), use standard average cardio baseline constants.\n\n3. OTHER WORKOUTS (HYROX, Functional Fitness, Rowing, Sports, Swimming):\n   - Extract any circuit structures, time caps, intervals, or descriptive metadata provided.\n   - Provide a safe athletic calorie expenditure estimate based on standard MET (Metabolic Equivalent of Task) values.\n\n### Muscle Group Tracking Rules:\n- Based on the movements or activities logged, you must accurately determine and output an array of specific primary muscle groups targeted during the session (e.g., [\"Quadriceps\", \"Glutes\", \"Hamstrings\", \"Chest\", \"Triceps\", \"Latissimus Dorsi\", \"Deltoids\", \"Core\"]).\n\n### Language & Tone Matching Rules:\n- Detect the tone and language of the input context. The generated `whatsapp_text` field MUST match this style perfectly.\n- If the context is casual Indonesian/Jakarta slang (using terms like \"gw\", \"lu\", \"ngegym\", \"lari\"), ensure the preview text uses the same casual vibe.\n- The final line of your `whatsapp_text` must explicitly tell the user to confirm the entry using the specific words:\n  - For English contexts: \"_Reply *'Yes'*, *'Save'*, or *'Log it'* to save._\"\n  - For Indonesian/Mixed contexts: \"_Balas *'Yes'*, *'Save'*, atau *'Log it'* untuk menyimpan._\"\n\n### Output Requirements:\n- Output a raw, strict JSON object matching the schema below.\n- Do not wrap the JSON output in markdown fences like ```json.\n- Do not include any conversational pleasantries or commentary outside of the JSON.\n\n### Output JSON Schema:\n{\n  \"is_food\": false,\n  \"is_workout\": true,\n  \"workout_type\": \"strength\", // \"strength\", \"cardio\", \"conditioning\", or \"other\"\n  \"workout_summary\": \"Strength Session: Bench Press and Barbell Squats\", // High-level description\n  \"calories_burned\": 320, // Total estimated integer calorie burn\n  \"muscles_trained\": [\"Chest\", \"Triceps\", \"Quadriceps\", \"Glutes\", \"Core\"], // Array of anatomical target muscles\n  \"workout_details\": {\n    \"strength_movements\": [\n      {\n        \"movement_name\": \"Bench Press\",\n        \"movement_code\": \"benchPress\", // MUST BE CAMELCASE\n        \"total_sets\": 3,\n        \"set_history\": [\n          { \"set_number\": 1, \"reps\": 10, \"weight_kg\": 60.0 },\n          { \"set_number\": 2, \"reps\": 10, \"weight_kg\": 60.0 },\n          { \"set_number\": 3, \"reps\": 8, \"weight_kg\": 65.0 }\n        ]\n      },\n      {\n        \"movement_name\": \"Barbell Squat\",\n        \"movement_code\": \"barbellSquat\", // MUST BE CAMELCASE\n        \"total_sets\": 2,\n        \"set_history\": [\n          { \"set_number\": 1, \"reps\": 12, \"weight_kg\": 80.0 },\n          { \"set_number\": 2, \"reps\": 12, \"weight_kg\": 80.0 }\n        ]\n      }\n    ],\n    \"cardio_metrics\": { // Set to null if workout_type is pure strength\n      \"activity_name\": \"Running\", // \"Running\", \"Rowing\", \"Cycling\", etc.\n      \"distance_km\": null, // Float or null\n      \"duration_minutes\": null, // Float or null\n      \"pace_min_km\": null, // String pattern \"MM:SS\" or null\n      \"average_heart_rate\": null // Integer or null\n    },\n    \"other_metrics\": { // Used for generalized sports, functional fitness summaries, or circuit notes\n      \"description_notes\": null\n    }\n  },\n  \"whatsapp_text\": \"🏋️‍♂️ *Workout Preview* 🏋️‍♂️\\n\\nMantap exercise-nya! Ini rekap latihanmu:\\n• *Bench Press:* 3 set (Up to 65kg)\\n• *Barbell Squat:* 2 set (80kg)\\n\\nTarget Otot: Chest, Triceps, Quadriceps, Glutes, Core\\n🔥 *Estimasi Burn:* ~320 kcal\\n\\n_Balas *'Yes'*, *'Save'*, atau *'Log it'* untuk menyimpan._\"\n}",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1680,
+        -336
+      ],
+      "id": "d5efcc7f-ccea-43f9-bafc-47fddc495eef",
+      "name": "AI AGEN exercice"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1648,
+        -160
+      ],
+      "id": "1fbdd673-b8d9-41d3-a097-b55212431a36",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "19pPlnDOhZi8z7if",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.message.key.remoteJid }}",
+        "databaseName": "fit_log",
+        "contextWindowLength": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        -160
+      ],
+      "id": "cbf118ab-5778-4530-997e-11297a7fef75",
+      "name": "MongoDB Chat Memory2",
+      "notesInFlow": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "6ja3rW5CeKDpu6qF",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.message.key.remoteJid }}",
+        "databaseName": "fit_log",
+        "contextWindowLength": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        -528
+      ],
+      "id": "1aedf122-bd9e-460e-85aa-d35c43cd60c9",
+      "name": "MongoDB Chat Memory",
+      "notesInFlow": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "6ja3rW5CeKDpu6qF",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst data = JSON.parse($input.first().json.output)\nlet calories = 0\nif(data.calories_burned){\n  calories =calories - data.calories_burned\n}\n\nif(data.nutrients){\n  calories =calories + data.nutrients.calories\n}\nreturn {\n  ...data,\n  calories\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        -480
+      ],
+      "id": "3ee840b1-041f-464e-8282-6d7806bfd5c4",
+      "name": "intent froms string to json2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "text image switcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text image switcher": {
+      "main": [
+        [
+          {
+            "node": "intent classifier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "intent classifier image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intent classifier": {
+      "main": [
+        [
+          {
+            "node": "intent froms string to json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intent froms string to json": {
+      "main": [
+        [
+          {
+            "node": "intent switcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intent switcher": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI AGEN exercice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intent froms string to json1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "intent froms string to json1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "intent froms string to json2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "intent froms string to json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intent classifier image1": {
+      "main": [
+        [
+          {
+            "node": "intent froms string to json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI AGEN exercice": {
+      "main": [
+        [
+          {
+            "node": "intent froms string to json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI AGEN exercice",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI AGEN exercice",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7aad0267-8cd2-4c8d-bfc9-5e355d6fcfc2",
+  "meta": {
+    "instanceId": "3ada58f3ee3ee56f15867a8c838e592ca569717e0d8fa49ae7be8aa9df856538"
+  },
+  "nodeGroups": [],
+  "id": "oTHaLbl780rhVLrC",
+  "tags": []
+}
